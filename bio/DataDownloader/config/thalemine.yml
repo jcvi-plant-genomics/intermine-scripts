@@ -1,0 +1,17 @@
+log_dir: "/usr/local/projdata/0611/projects/AIP/ThaleMineData/log/download_logs"
+data_dir: "/usr/local/projdata/0611/projects/AIP/ThaleMineData/"
+
+default_sources:
+  - "GOAnnotation"
+  - "IntAct"
+  - "IntActVocabulary"
+  - "InterPro"
+  - "InterProGO"
+  - "InterProProtein"
+  - "NCBIGene"
+  - "PubMed"
+  - "UniProt"
+
+UniProt:
+    organisms:
+        - 3702
