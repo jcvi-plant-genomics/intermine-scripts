@@ -1,0 +1,16 @@
+log_dir: "/usr/local/projdata/0372/projects/MTG4/MedicMineData/download_logs"
+data_dir: "/usr/local/projdata/0372/projects/MTG4/MedicMineData/"
+
+default_sources:
+  - "InterPro"
+  - "InterProGO"
+  - "InterProProtein"
+  - "NCBIGene"
+  - "NCBIGeneRIF"
+  - "PubMed"
+  - "UniProt"
+  - "UniProtGOA"
+
+UniProt:
+    organisms:
+        - 3880
