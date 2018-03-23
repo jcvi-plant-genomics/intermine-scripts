@@ -7,24 +7,16 @@ use constant {
     TITLE => 'InterPro protein family domain and data',
     DESCRIPTION => "Protein Family and Domain data from Interpro",
     SOURCE_LINK => 'http://www.ebi.ac.uk/interpro',
-    SOURCE_DIR  => 'interpro/match_complete',
+    SOURCE_DIR  => 'interpro',
     SOURCES => [
-
-        {
-            SUBTITLE => 'Match complete',
-            HOST => 'ftp.ebi.ac.uk',
-            REMOTE_DIR => 'pub/databases/interpro/Current',
-            FILE => 'match_complete.xml.gz',
-            EXTRACT => 1,
-        },
         {
             SUBTITLE => 'Proteins to domains',
             HOST => 'ftp.ebi.ac.uk',
-            REMOTE_DIR => 'pub/databases/interpro/Current',
+            REMOTE_DIR => 'pub/databases/interpro/current',
             FILE => 'protein2ipr.dat.gz',
             EXTRACT => 1,
-        },
-    ],
+        }
+    ]
 };
 
 1;

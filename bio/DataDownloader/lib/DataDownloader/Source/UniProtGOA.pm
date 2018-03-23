@@ -38,6 +38,44 @@ my %UNIPROT_TAXA = ( '3880' => 'medtr' );
 sub field2_of { return [ split( /\t/, shift ) ]->[1] || '' }
 my $order = sub { field2_of($a) cmp field2_of($b) };
 
+sub process_gaf_line {
+=comment
+UniProtKB	A0A072VCE3	25481846		GO:0016874	GO_REF:0000038	IEA	UniProtKB-KW:KW-0436	F	E3 ubiquitin-protein ligase HERC2-like protein	A0A072VCE3_MEDTR|25481846|MTR_1g006695	protein	taxon:3880	20180224	UniProt		
+UniProtKB	A0A072VCE9	11429591		GO:0016020	GO_REF:0000038	IEA	UniProtKB-KW:KW-0472	C	Transmembrane amino acid transporter family protein	A0A072VCE9_MEDTR|11429591|MTR_1g007180	protein	taxon:3880	20180224	UniProt		
+UniProtKB	A0A072VCE9	11429591		GO:0016021	GO_REF:0000038	IEA	UniProtKB-KW:KW-0812	C	Transmembrane amino acid transporter family protein	A0A072VCE9_MEDTR|11429591|MTR_1g007180	protein	taxon:3880	20180224	UniProt		
+
+Process each GAF line, extract /MTR_/ synonmys from column 11
+If >= 1 /MTR_/ synonym present, replace symbol in column 3 with this value
+Return one or more GAF lines (based on synonym count)
+=cut
+
+    my $line = shift;
+    my @gaf_lines = ();
+
+    my @cols = split /\t/, $line;
+
+    my $symbol = $cols[2];
+    if ($symbol =~ /^MTR_/) {
+        push @gaf_lines, $line;
+        return @gaf_lines;
+    }
+
+    ## extract any synonyms starting with MTR_
+    ## replace cols[2] with synonym from cols[10]
+    my @mtr_synonyms = grep (/^MTR_/, (split /\|/, $cols[10]));
+    if (scalar @mtr_synonyms >= 1) {
+        foreach my $syn(@mtr_synonyms) {
+            $cols[2] = $syn;
+            my $new_gaf_line = join "\t", @cols;
+            push @gaf_lines, $new_gaf_line;
+        }
+    } else {
+        push @gaf_lines, $line;
+    }
+
+    return @gaf_lines;
+}
+
 my $uniprot_cleaner = sub {
     my $self = shift;
     my %lines_for;
@@ -46,8 +84,12 @@ my $uniprot_cleaner = sub {
     $self->debug("Splitting uniprot GOA file $file");
     while (<$fh>) {
         for my $taxon_id ( keys %UNIPROT_TAXA ) {
-            push @{ $lines_for{$taxon_id} }, $_
-                if (/\ttaxon\:$taxon_id\t/);
+            if (/\ttaxon\:$taxon_id\t/) {
+                my @gaf_lines = process_gaf_line($_);
+                foreach my $gaf_line(@gaf_lines) {
+                    push @{ $lines_for{$taxon_id} }, $gaf_line;
+                }
+            }
         }
     }
     close $fh;
@@ -79,14 +121,13 @@ my $goa_cleaner = sub {
 
 sub BUILD {
     my $self    = shift;
-    my @sources = (
-        {
-            SUBTITLE   => "GO",
-            HOST       => "ftp.geneontology.org",
-            REMOTE_DIR => "pub/go/ontology",
-            FILE       => "gene_ontology.obo",
-        }
-    );
+    my @sources = ();
+    push @sources, {
+        SUBTITLE => "GO",
+        SERVER   => "http://geneontology.org/ontology",
+        FILE     => "go-basic.obo",
+        METHOD   => "HTTP",
+    };
 
     if (%UNIPROT_TAXA) {
         push @sources,

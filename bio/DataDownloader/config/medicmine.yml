@@ -5,9 +5,8 @@ default_sources:
   - "InterPro"
   - "InterProGO"
   - "InterProProtein"
-  - "NCBIGene"
-  - "NCBIGeneRIF"
   - "PubMed"
+  - "NCBIGeneRIF"
   - "UniProt"
   - "UniProtGOA"
 
